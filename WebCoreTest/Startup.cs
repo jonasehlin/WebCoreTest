@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace WebCoreTest
 {
@@ -20,7 +23,22 @@ namespace WebCoreTest
 		/// </remarks>
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+			services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				.AddJwtBearer(cfg =>
+				{
+					cfg.RequireHttpsMetadata = false;
+					cfg.SaveToken = true;
+
+					cfg.TokenValidationParameters = new TokenValidationParameters()
+					{
+						ValidIssuer = Configuration["Tokens:Issuer"],
+						ValidAudience = Configuration["Tokens:Issuer"],
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Tokens:Key"]))
+					};
+				});
+
+			services.AddMvc()
+				.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 		}
 
 		/// <remarks>
@@ -33,6 +51,7 @@ namespace WebCoreTest
 				app.UseDeveloperExceptionPage();
 			}
 
+			app.UseAuthentication();
 			app.UseMvc();
 		}
 	}
