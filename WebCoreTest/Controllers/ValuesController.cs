@@ -4,8 +4,7 @@ using System.Collections.Generic;
 namespace WebCoreTest.Controllers
 {
 	[Route("api/[controller]")]
-	[ApiController]
-	public class ValuesController : ControllerBase
+	public class ValuesController : BaseController
 	{
 		// GET api/values
 		[HttpGet]
